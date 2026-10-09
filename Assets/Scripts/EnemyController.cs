@@ -1,18 +1,28 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System;
 
 public class EnemyController : MonoBehaviour
 {
-    [SerializeField] GameObject player;
+    private GameObject player;
     [SerializeField] float speed = 5f;
     private int hp;
     [SerializeField] int hpOnStart = 25;
     [SerializeField] private PlayerController playerController;
 
+    // Evento que se dispara cuando el enemigo es destruido
+    public static event Action<EnemyController> OnEnemyDestroyed;
+
     void Start()
     {
         hp = hpOnStart;
+        player = GameObject.FindGameObjectWithTag("Player");
+        if (player != null)
+        {
+            // Ensure we have the PlayerController reference at runtime
+            playerController = player.GetComponent<PlayerController>();
+        }
     }
 
     void Update()
@@ -23,9 +33,13 @@ public class EnemyController : MonoBehaviour
 
     private void takeDamage()
     {
-        hp -= playerController.BulletDamage;
+        //int damage = playerController != null ? playerController.BulletDamage : 25;
+        int damage = playerController.BulletDamage;
+        hp -= damage;
         if (hp <= 0)
         {
+            // Aviso a posibles suscriptores al evento OnEnemyDestroyed
+            OnEnemyDestroyed?.Invoke(this);
             Destroy(gameObject);
         }
     }

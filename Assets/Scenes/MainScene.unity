@@ -466,7 +466,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &308835011
 Transform:
   m_ObjectHideFlags: 0
@@ -932,6 +932,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4a9525f268170554db647c136a972740, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  enemyPrefab: {fileID: 8120120627812962199, guid: de0ed6d95e75d694cba81897872c3acc,
+    type: 3}
+  spawnCenter: {x: 0, y: 0, z: 0}
+  spawnSize: {x: 50, y: 0, z: 50}
+  initialEnemyCount: 5
+  respawnDelay: 0.5
+  orb: {fileID: 1241935334}
+  playerTransform: {fileID: 1423164384}
+  minSpawnDistanceFromPlayer: 10
+  maxSpawnAttempts: 20
 --- !u!1 &1228779087
 GameObject:
   m_ObjectHideFlags: 0
