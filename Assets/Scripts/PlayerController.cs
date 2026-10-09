@@ -4,13 +4,15 @@ using UnityEngine;
 
 public class PlayerController : MonoBehaviour
 {
-    [SerializeField] float movementSpeed = 10.0f;
+    [SerializeField] float movementSpeed = 6f;
     [SerializeField] Camera mainCamera;
-
-    //public GameObject bullet;
-    //private int rayRange = 5;
-    //private int bulletSpeed = 15;
-    //private int bulletLifetime = 5;
+    [SerializeField] GameObject bullet;
+    [SerializeField] int bulletDamage = 25;
+    public int BulletDamage => bulletDamage;
+    [SerializeField] int bulletSpeed = 15;
+    [SerializeField] int bulletLifetime = 5;
+    [SerializeField] int colldown = 2;
+    private float lastBulletTime = 0f;
 
     void Start()
     {
@@ -28,35 +30,36 @@ public class PlayerController : MonoBehaviour
             Cursor.lockState = CursorLockMode.None;
         }
 
-        //if (Input.GetMouseButtonDown(0)) // mouse izq
-        //{
-        //    Ray ray = mainCamera.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0));
+        if (Input.GetMouseButtonDown(0))
+        {
+            if (Time.time - lastBulletTime > colldown || lastBulletTime == 0f)
+            {
+                Ray ray = mainCamera.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0));
 
-        //    // instancio prefab de bullet
-        //    GameObject pro;
-        //    pro = Instantiate(bullet, ray.origin, transform.rotation);
-        //    Rigidbody rb = pro.GetComponent<Rigidbody>();
-        //    rb.AddForce(mainCamera.transform.forward * bulletSpeed, ForceMode.Impulse);
-        //    Destroy(pro, bulletLifetime);
-
-        //    RaycastHit hit;
-        //    if ((Physics.Raycast(ray, out hit) == true) && hit.distance < rayRange)
-        //    {
-        //        Debug.Log("El rayo tocó al objeto: " + hit.collider.name);
-        //        //if (hit.collider.name.Substring(0, 3) == "Bot") // me conviene hacerlo por tag?
-        //        if (hit.collider.gameObject.CompareTag("Bot"))
-        //        {
-        //            // obtengo o importo el script del bot
-        //            GameObject objetoTocado = GameObject.Find(hit.transform.name);
-        //            BotController scriptObjetoTocado = (BotController)objetoTocado.GetComponent(typeof(BotController));
-        //            if (scriptObjetoTocado != null)
-        //            {
-        //                // invoco su funcion para recibir dano
-        //                //scriptObjetoTocado.recibirDaño();
-        //            }
-        //        }
-        //    }
-        //}
+                GameObject _bullet;
+                _bullet = Instantiate(bullet, ray.origin, transform.rotation);
+                Debug.Log("Bullet instantiated at: " + ray.origin);
+                Rigidbody rb = _bullet.GetComponent<Rigidbody>();
+                rb.AddForce(mainCamera.transform.forward * bulletSpeed, ForceMode.Impulse);
+                if (_bullet != null)
+                {
+                    Destroy(_bullet, bulletLifetime);
+                }
+                lastBulletTime = Time.time;
+            }
+            else
+            {
+                Debug.Log("Gun is on cooldown");
+            }
+        }
     }
 
+    private void OnCollisionEnter(Collision collision)
+    {
+        if (collision.gameObject.CompareTag("Enemy"))
+        {
+            Debug.Log("Collision with enemy");
+            Destroy(gameObject);
+        }
+    }
 }
