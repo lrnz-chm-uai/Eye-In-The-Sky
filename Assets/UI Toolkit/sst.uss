@@ -1,0 +1,4 @@
+.hp-bar .unity-progress-bar__progress {
+    -unity-background-image-tint-color: rgb(255, 255, 255);
+    background-color: rgb(103, 23, 23);
+}

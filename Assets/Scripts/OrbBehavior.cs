@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 public class OrbBehavior : MonoBehaviour
@@ -6,6 +7,10 @@ public class OrbBehavior : MonoBehaviour
     private int hp;
     [SerializeField] int hpOnStart = 100;
     [SerializeField] private PlayerController playerController;
+
+    // Se dispara cada vez que el orb recibe daño. UIManager lo usa para mostrar/actualizar la barra de vida.
+    // Parámetros: hp actual (clampeado a >= 0) y hp máximo.
+    //public static event Action<int, int> OnOrbDamaged;
 
     void Start()
     {
@@ -21,7 +26,11 @@ public class OrbBehavior : MonoBehaviour
 
     private void TakeDamage()
     {
-        hp -= playerController.BulletDamage;
+        hp = Mathf.Max(hp - playerController.BulletDamage, 0);
+
+        // Notificar antes del Destroy: el último evento llega con hp = 0
+        //OnOrbDamaged?.Invoke(hp, hpOnStart);
+
         if (hp <= 0)
         {
             Destroy(gameObject);
