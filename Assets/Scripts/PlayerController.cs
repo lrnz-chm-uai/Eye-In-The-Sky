@@ -14,17 +14,28 @@ public class PlayerController : MonoBehaviour
     [SerializeField] int colldown = 2;
     private float lastBulletTime = 0f;
 
+    private Rigidbody rb;
+    private Vector2 moveInput;
+
     void Start()
     {
+        rb = GetComponent<Rigidbody>();
         Cursor.lockState = CursorLockMode.Locked;
     }
     void Update()
     {
-        float zMovement = Input.GetAxis("Vertical") * movementSpeed; // direccion por rapidez
-        float xMovement = Input.GetAxis("Horizontal") * movementSpeed;
-        zMovement *= Time.deltaTime;
-        xMovement *= Time.deltaTime;
-        transform.Translate(xMovement, 0, zMovement);
+        // Para movimiento usando el transform
+        // Esto puede significa problemas cuando uso un rb no kinematic
+        // Mejor manejas en FixedUpdate para las físicas
+        //float zMovement = Input.GetAxis("Vertical") * movementSpeed; // direccion por rapidez
+        //float xMovement = Input.GetAxis("Horizontal") * movementSpeed;
+        //zMovement *= Time.deltaTime;
+        //xMovement *= Time.deltaTime;
+        //transform.Translate(xMovement, 0, zMovement);
+
+        moveInput.x = Input.GetAxis("Horizontal");
+        moveInput.y = Input.GetAxis("Vertical");
+
         if (Input.GetKeyDown("escape"))
         {
             Cursor.lockState = CursorLockMode.None;
@@ -52,6 +63,15 @@ public class PlayerController : MonoBehaviour
                 Debug.Log("Gun is on cooldown");
             }
         }
+    }
+
+    private void FixedUpdate()
+    {
+        if (rb == null) return;
+
+        Vector3 move = (transform.forward * moveInput.y + transform.right * moveInput.x)
+                       * movementSpeed * Time.fixedDeltaTime;
+        rb.MovePosition(rb.position + move);
     }
 
     private void OnCollisionEnter(Collision collision)
