@@ -14,6 +14,9 @@ public class EnemyController : MonoBehaviour
     // Evento que se dispara cuando el enemigo es destruido
     public static event Action<EnemyController> OnEnemyDestroyed;
 
+    // Flag para evitar invocar más de una vez al evento OnEnemyDestroyed en takeDamage
+    private bool isDying = false;
+
     void Start()
     {
         hp = hpOnStart;
@@ -36,8 +39,9 @@ public class EnemyController : MonoBehaviour
         //int damage = playerController != null ? playerController.BulletDamage : 25;
         int damage = playerController.BulletDamage;
         hp -= damage;
-        if (hp <= 0)
+        if (hp <= 0 && !isDying)
         {
+            isDying = true;
             // Aviso a posibles suscriptores al evento OnEnemyDestroyed
             OnEnemyDestroyed?.Invoke(this);
             Destroy(gameObject);

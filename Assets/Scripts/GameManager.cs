@@ -30,6 +30,11 @@ public class GameManager : MonoBehaviour
         EnemyController.OnEnemyDestroyed -= HandleEnemyDestroyed;
     }
 
+    void Awake()
+    {
+        Debug.Log("GameManager count: " + FindObjectsOfType<GameManager>().Length);
+    }
+
     void Start()
     {
         if (enemyPrefab == null) return;
@@ -42,7 +47,9 @@ public class GameManager : MonoBehaviour
 
     private void HandleEnemyDestroyed(EnemyController enemy)
     {
+        if (enemy == null) return;
         // Empieza la corrutina para respawnear un enemigo después de un retraso
+        Debug.Log("Enemy destroyed, starting respawn coroutine.");
         StartCoroutine(RespawnAfterDelay(respawnDelay));
     }
 
@@ -79,6 +86,7 @@ public class GameManager : MonoBehaviour
             {
                 spawnPos = candidate;
                 found = true;
+                Debug.Log($"Spawned enemy at {spawnPos} after {attempt + 1} attempts.");
                 break;
             }
         }
@@ -86,6 +94,7 @@ public class GameManager : MonoBehaviour
         if (!found)
         {
             // fallback: en caso de que ninguno de los intentos haya sido válido, spawnear en el centro del área de spawn
+            Debug.LogWarning("Could not find a valid spawn position after max attempts. Spawning at fallback position.");
             Vector3 fallback = spawnCenter;
             fallback.y = spawnY;
             if (playerTransform != null)
@@ -101,6 +110,7 @@ public class GameManager : MonoBehaviour
         }
 
         Instantiate(enemyPrefab, spawnPos, Quaternion.identity);
+        Debug.Log($"Enemy instatiation at {spawnPos}");
     }
 
     // Para visualizar el área de spawn en la escena
@@ -111,21 +121,21 @@ public class GameManager : MonoBehaviour
         Gizmos.color = Color.green;
         Gizmos.DrawWireCube(spawnCenter, spawnSize);
 
-        // Para visualizar la distancia mínima de spawn, relativa al jugador
-        if (playerTransform != null)
-        {
-            Gizmos.color = new Color(1f, 0f, 0f, 0.2f);
-            Vector3 center = playerTransform.position;
-            center.y = spawnY;
-            Gizmos.DrawSphere(center, 0.1f);
-            // Dibuja un círculo alrededor del jugador para indicar la distancia mínima de spawn 
-            int steps = 24;
-            for (int i = 0; i < steps; i++)
-            {
-                float a = (i / (float)steps) * Mathf.PI * 2f;
-                Vector3 p = center + new Vector3(Mathf.Cos(a), 0f, Mathf.Sin(a)) * minSpawnDistanceFromPlayer;
-                Gizmos.DrawSphere(p, 0.08f);
-            }
-        }
+        // TODO: Para visualizar la distancia mínima de spawn, relativa al jugador
+        //if (playerTransform != null)
+        //{
+        //    Gizmos.color = new Color(1f, 0f, 0f, 0.2f);
+        //    Vector3 center = playerTransform.position;
+        //    center.y = spawnY;
+        //    Gizmos.DrawSphere(center, 0.1f);
+        //    // Dibuja un círculo alrededor del jugador para indicar la distancia mínima de spawn 
+        //    int steps = 24;
+        //    for (int i = 0; i < steps; i++)
+        //    {
+        //        float a = (i / (float)steps) * Mathf.PI * 2f;
+        //        Vector3 p = center + new Vector3(Mathf.Cos(a), 0f, Mathf.Sin(a)) * minSpawnDistanceFromPlayer;
+        //        Gizmos.DrawSphere(p, 0.08f);
+        //    }
+        //}
     }
 }
