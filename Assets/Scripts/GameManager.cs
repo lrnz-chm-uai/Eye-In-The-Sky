@@ -22,9 +22,20 @@ public class GameManager : MonoBehaviour
 
     public GameState CurrentState { get; private set; } = GameState.WaitingToStart;
 
+    // Flag estático: sobrevive a la recarga de escena (los campos de instancia no)
+    private static bool autoStartOnNextLoad;
+
     // Se dispara cuando el juego termina (Won o Lost). UIManager lo usa para re-mostrar el botón.
     public event Action OnGameEnded;
 
+    // Se dispara cuando el juego comienza. UIManager lo usa para ocultar el botón.
+    public event Action OnGameStarted;
+
+    // Llamado antes de recargar la escena para que la próxima partida arranque sola
+    public static void RequestAutoStartOnNextLoad()
+    {
+        autoStartOnNextLoad = true;
+    }
     private int aliveEnemies = 0;
     private PlayerController playerController;
     private CameraController cameraController;
@@ -56,6 +67,13 @@ public class GameManager : MonoBehaviour
         {
             playerController = playerTransform.GetComponent<PlayerController>();
             cameraController = playerTransform.GetComponentInChildren<CameraController>();
+        }
+
+        // Si se pidió auto-inicio (reinicio tras victoria/derrota), arrancar directamente
+        if (autoStartOnNextLoad)
+        {
+            autoStartOnNextLoad = false;
+            StartGame();
         }
     }
 
@@ -91,6 +109,7 @@ public class GameManager : MonoBehaviour
             cameraController.SetInputEnabled(true);
         }
 
+        OnGameStarted?.Invoke();
     }
 
     private void EndGame(GameState result)

@@ -27,6 +27,7 @@ public class UIManager : MonoBehaviour
         if (gameManager != null)
         {
             gameManager.OnGameEnded += HandleGameEnded;
+            gameManager.OnGameStarted += HandleGameStarted;
         }
 
         // Estado inicial: botón visible y cursor libre para poder clickearlo
@@ -43,6 +44,7 @@ public class UIManager : MonoBehaviour
         if (gameManager != null)
         {
             gameManager.OnGameEnded -= HandleGameEnded;
+            gameManager.OnGameStarted -= HandleGameStarted;
         }
     }
 
@@ -51,17 +53,22 @@ public class UIManager : MonoBehaviour
         switch (gameManager.CurrentState)
         {
             case GameManager.GameState.WaitingToStart:
-                HideStartButton();
-                UnityEngine.Cursor.lockState = CursorLockMode.Locked;
                 gameManager.StartGame();
                 break;
 
             case GameManager.GameState.Won:
             case GameManager.GameState.Lost:
-                // Reinicio: recargar la escena actual
+                // Pedir auto-inicio y recargar: la próxima escena arranca jugando
+                GameManager.RequestAutoStartOnNextLoad();
                 SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
                 break;
         }
+    }
+
+    private void HandleGameStarted()
+    {
+        HideStartButton();
+        UnityEngine.Cursor.lockState = CursorLockMode.Locked;
     }
 
     private void HandleGameEnded()
