@@ -1,5 +1,4 @@
-//using System.Collections;
-//using System.Collections.Generic;
+using System;
 using UnityEngine;
 
 public class PlayerController : MonoBehaviour
@@ -16,14 +15,33 @@ public class PlayerController : MonoBehaviour
 
     private Rigidbody rb;
     private Vector2 moveInput;
+    private bool inputEnabled = false;
+
+    // Evento que se dispara cuando el player es destruido (condición de derrota)
+    public static event Action OnPlayerDestroyed;
+
 
     void Start()
     {
         rb = GetComponent<Rigidbody>();
-        Cursor.lockState = CursorLockMode.Locked;
+        // El bloqueo del cursor lo maneja UIManager
+        //Cursor.lockState = CursorLockMode.Locked; 
     }
+
+    // Habilita/deshabilita el input (movimiento y disparo). Lo llama GameManager.StartGame().
+    public void SetInputEnabled(bool enabled)
+    {
+        inputEnabled = enabled;
+        if (!enabled)
+        {
+            moveInput = Vector2.zero;
+        }
+    }
+
     void Update()
     {
+        if (!inputEnabled) return;
+
         // Para movimiento usando el transform
         // Esto puede significa problemas cuando uso un rb no kinematic
         // Mejor manejas en FixedUpdate para las físicas
@@ -68,6 +86,7 @@ public class PlayerController : MonoBehaviour
     private void FixedUpdate()
     {
         if (rb == null) return;
+        if (!inputEnabled) return;
 
         Vector3 move = (transform.forward * moveInput.y + transform.right * moveInput.x)
                        * movementSpeed * Time.fixedDeltaTime;
@@ -79,6 +98,8 @@ public class PlayerController : MonoBehaviour
         if (collision.gameObject.CompareTag("Enemy"))
         {
             Debug.Log("Collision with enemy");
+            // Aviso a suscriptores (GameManager) antes de destruir
+            OnPlayerDestroyed?.Invoke();
             Destroy(gameObject);
         }
     }

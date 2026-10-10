@@ -30,6 +30,7 @@ public class EnemyController : MonoBehaviour
 
     void Update()
     {
+        if (player == null) return;
         transform.LookAt(player.transform.position);
         transform.Translate(speed * Vector3.forward * Time.deltaTime);
     }

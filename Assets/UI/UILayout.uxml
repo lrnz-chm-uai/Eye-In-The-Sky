@@ -1,0 +1,4 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <ui:Button text="Jugar&#x9;" parse-escape-sequences="true" display-tooltip-when-elided="true" name="StartButton" style="left: auto; bottom: auto; top: 900px; align-self: center; position: relative;" />
+    <ui:ProgressBar value="100" name="OrbLife" style="top: 950px; align-self: center; width: 1000px; opacity: 0.85; -unity-background-image-tint-color: rgb(103, 23, 23); background-color: rgba(40, 40, 40, 0);" />
+</ui:UXML>

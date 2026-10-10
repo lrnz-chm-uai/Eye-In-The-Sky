@@ -6,6 +6,8 @@ using Random = UnityEngine.Random;
 
 public class GameManager : MonoBehaviour
 {
+    public enum GameState { WaitingToStart, Playing, Won, Lost }
+
     [SerializeField] GameObject enemyPrefab;
     [SerializeField] Vector3 spawnCenter;
     [SerializeField] Vector3 spawnSize;
@@ -18,16 +20,27 @@ public class GameManager : MonoBehaviour
 
     private float spawnY = 2.5f;
 
+    public GameState CurrentState { get; private set; } = GameState.WaitingToStart;
+
+    // Se dispara cuando el juego termina (Won o Lost). UIManager lo usa para re-mostrar el botón.
+    public event Action OnGameEnded;
+
+    private int aliveEnemies = 0;
+    private PlayerController playerController;
+
     void OnEnable() // OnEnable es llamado cuando el objeto se activa en la escena
     {
         // Suscripción al evento OnEnemyDestroyed del EnemyController
         EnemyController.OnEnemyDestroyed += HandleEnemyDestroyed; // con += llamo al método HandleEnemyDestroyed
         // Lo que termina disparando el evento es una corutina
+
+        PlayerController.OnPlayerDestroyed += HandlePlayerDestroyed;
     }
 
     void OnDisable()
     {
         EnemyController.OnEnemyDestroyed -= HandleEnemyDestroyed;
+        PlayerController.OnPlayerDestroyed += HandlePlayerDestroyed;
     }
 
     void Awake()
@@ -37,33 +50,77 @@ public class GameManager : MonoBehaviour
 
     void Start()
     {
+        // El juego NO arranca solo: queda en WaitingToStart hasta que UIManager llame a StartGame()
+        if (playerTransform != null)
+        {
+            playerController = playerTransform.GetComponent<PlayerController>();
+        }
+    }
+
+    void Update()
+    {
+        // Victoria: orb destruido y no quedan enemigos vivos.
+        // Se evalúa acá porque el orb puede morir después del último enemigo.
+        if (CurrentState == GameState.Playing && orb == null && aliveEnemies == 0)
+        {
+            EndGame(GameState.Won);
+        }
+    }
+
+    // Llamado por UIManager al clickear StartButton en WaitingToStart
+    public void StartGame()
+    {
+        if (CurrentState != GameState.WaitingToStart) return;
         if (enemyPrefab == null) return;
 
+        CurrentState = GameState.Playing;
         for (int i = 0; i < initialEnemyCount; i++)
         {
             SpawnEnemyAtRandomPosition();
         }
+
+        if (playerController != null)
+        {
+            playerController.SetInputEnabled(true);
+        }
+    }
+
+    private void EndGame(GameState result)
+    {
+        CurrentState = result;
+        Debug.Log("Game ended: " + result);
+        OnGameEnded?.Invoke();
     }
 
     private void HandleEnemyDestroyed(EnemyController enemy)
     {
         if (enemy == null) return;
-        // Empieza la corrutina para respawnear un enemigo después de un retraso
+        aliveEnemies--;
+
+        // Sólo respawnear si el juego sigue en curso
+        if (CurrentState != GameState.Playing) return;
+
         Debug.Log("Enemy destroyed, starting respawn coroutine.");
         StartCoroutine(RespawnAfterDelay(respawnDelay));
+    }
+
+    private void HandlePlayerDestroyed()
+    {
+        // Derrota: colisión con Enemy y Player destruido
+        if (CurrentState != GameState.Playing) return;
+        EndGame(GameState.Lost);
     }
 
     private IEnumerator RespawnAfterDelay(float delay)
     {
         yield return new WaitForSeconds(delay);
 
-        // Sólo spawnear un enemigo si el Orbe no fue destruido
-        if (orb != null)
+        // Chequeo extra por si el juego terminó mientras corría el delay
+        if (CurrentState == GameState.Playing && orb != null)
         {
             SpawnEnemyAtRandomPosition();
         }
     }
-
     private void SpawnEnemyAtRandomPosition()
     {
         Vector3 spawnPos = Vector3.zero;
@@ -110,6 +167,7 @@ public class GameManager : MonoBehaviour
         }
 
         Instantiate(enemyPrefab, spawnPos, Quaternion.identity);
+        aliveEnemies++;
         Debug.Log($"Enemy instatiation at {spawnPos}");
     }
 

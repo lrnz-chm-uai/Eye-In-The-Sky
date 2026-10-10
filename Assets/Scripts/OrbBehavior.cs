@@ -14,6 +14,8 @@ public class OrbBehavior : MonoBehaviour
 
     void Update()
     {
+        // El player puede haber sido destruido (derrota) mientras el orb sigue vivo
+        if (player == null) return;
         transform.LookAt(player.transform.position);
     }
 
