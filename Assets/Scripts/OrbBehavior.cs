@@ -1,5 +1,3 @@
-//using System.Collections;
-//using System.Collections.Generic;
 using UnityEngine;
 
 public class OrbBehavior : MonoBehaviour
@@ -19,7 +17,7 @@ public class OrbBehavior : MonoBehaviour
         transform.LookAt(player.transform.position);
     }
 
-    private void takeDamage()
+    private void TakeDamage()
     {
         hp -= playerController.BulletDamage;
         if (hp <= 0)
@@ -33,7 +31,7 @@ public class OrbBehavior : MonoBehaviour
         if (collision.gameObject.CompareTag("Bullet"))
         {
             Debug.Log("Bullet hit the orb");
-            takeDamage();
+            TakeDamage();
             if (collision.gameObject != null)
             {
                 Destroy(collision.gameObject);

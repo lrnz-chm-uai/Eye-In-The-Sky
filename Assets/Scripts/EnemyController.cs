@@ -14,7 +14,7 @@ public class EnemyController : MonoBehaviour
     // Evento que se dispara cuando el enemigo es destruido
     public static event Action<EnemyController> OnEnemyDestroyed;
 
-    // Flag para evitar invocar más de una vez al evento OnEnemyDestroyed en takeDamage
+    // Flag para evitar invocar más de una vez al evento OnEnemyDestroyed en TakeDamage
     private bool isDying = false;
 
     void Start()
@@ -34,7 +34,7 @@ public class EnemyController : MonoBehaviour
         transform.Translate(speed * Vector3.forward * Time.deltaTime);
     }
 
-    private void takeDamage()
+    private void TakeDamage()
     {
         //int damage = playerController != null ? playerController.BulletDamage : 25;
         int damage = playerController.BulletDamage;
@@ -53,7 +53,7 @@ public class EnemyController : MonoBehaviour
         if (collision.gameObject.CompareTag("Bullet"))
         {
             Debug.Log("Bullet hit one enemy");
-            takeDamage();
+            TakeDamage();
             if (collision.gameObject != null)
             {
                 Destroy(collision.gameObject);
