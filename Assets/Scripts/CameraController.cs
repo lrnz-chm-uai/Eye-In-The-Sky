@@ -10,6 +10,8 @@ public class CameraController : MonoBehaviour
     [SerializeField] float mouseSmoothingFactor = 2.0f;
     GameObject player;
     [SerializeField] GameObject orb;
+    private bool inputEnabled = false; // Bloqueada hasta que GameManager inicie el juego
+
     void Start()
     {
         player = this.transform.parent.gameObject;
@@ -28,8 +30,17 @@ public class CameraController : MonoBehaviour
         mouseLook.x = yaw;
         mouseLook.y = -pitch; // se usa -mouseLook.y al aplicar la rotación en Update
     }
+
+    // Habilita/deshabilita el input de la cámara. Lo llama GameManager.StartGame().
+    public void SetInputEnabled(bool enabled)
+    {
+        inputEnabled = enabled;
+    }
+
     void Update()
     {
+        if (!inputEnabled) return;
+
         var mouseMove = new Vector2(Input.GetAxisRaw("Mouse X"), Input.GetAxisRaw("Mouse Y")); // mouseMove 
         mouseMove = Vector2.Scale(mouseMove, new Vector2(sensitivityFactor * mouseSmoothingFactor, sensitivityFactor * mouseSmoothingFactor)); // Scale multiplica 2 vectores
         mouseSmoothing.x = Mathf.Lerp(mouseSmoothing.x, mouseMove.x, 1f / mouseSmoothingFactor);

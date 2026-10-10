@@ -27,6 +27,7 @@ public class GameManager : MonoBehaviour
 
     private int aliveEnemies = 0;
     private PlayerController playerController;
+    private CameraController cameraController;
 
     void OnEnable() // OnEnable es llamado cuando el objeto se activa en la escena
     {
@@ -54,6 +55,7 @@ public class GameManager : MonoBehaviour
         if (playerTransform != null)
         {
             playerController = playerTransform.GetComponent<PlayerController>();
+            cameraController = playerTransform.GetComponentInChildren<CameraController>();
         }
     }
 
@@ -83,12 +85,23 @@ public class GameManager : MonoBehaviour
         {
             playerController.SetInputEnabled(true);
         }
+
+        if (cameraController != null)
+        {
+            cameraController.SetInputEnabled(true);
+        }
+
     }
 
     private void EndGame(GameState result)
     {
         CurrentState = result;
         Debug.Log("Game ended: " + result);
+        // Bloquear la cámara hasta que se inicie una nueva partida
+        if (cameraController != null)
+        {
+            cameraController.SetInputEnabled(false);
+        }
         OnGameEnded?.Invoke();
     }
 
