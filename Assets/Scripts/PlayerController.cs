@@ -10,7 +10,7 @@ public class PlayerController : MonoBehaviour
     public int BulletDamage => bulletDamage;
     [SerializeField] int bulletSpeed = 15;
     [SerializeField] int bulletLifetime = 5;
-    [SerializeField] int colldown = 2;
+    [SerializeField] float colldown = 2;
     private float lastBulletTime = 0f;
 
     private Rigidbody rb;
